@@ -129,6 +129,9 @@
   .opt:active{transform:scale(.97);}
   .opt.right{background:var(--green); color:#fff;}
   .opt.wrong{background:var(--red); color:#fff;}
+  /* shuruk: draw the dot separately so it never touches the vav */
+  .shk{position:relative; display:inline-block; padding-inline-end:.3em;}
+  .shk::after{content:""; position:absolute; inset-inline-end:.05em; top:.9em; width:.13em; height:.13em; border-radius:50%; background:currentColor;}
   /* word list */
   .list-h{display:inline-block; background:#fff176; padding:2px 14px; font-weight:700; font-size:1.1rem; line-height:1.7; margin:2px 0 8px; border-radius:6px;}
   .wl{width:100%; border-collapse:collapse; margin:0 0 18px;}
@@ -315,6 +318,8 @@ function speakAr(t){ say(t, "ar", "ar-SA"); }
 
 /* ============ HELPERS ============ */
 function plain(s){ return s.replace(/[֑-ׇً-ٰٟ]/g,''); }
+function hebHTML(t){ return t.replace(/\u05D5\u05BC/g,'<span class="shk">\u05D5</span>'); }
+function setHe(el,t){ el.innerHTML=hebHTML(t); }
 function markLong(el, text){ el.classList.toggle('long', plain(text).length>9); }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function confetti(){
@@ -347,7 +352,7 @@ function cur(){ return fList[fIdx]; }
 function renderFlash(){
   const w=cur(), he=document.getElementById('fc-he'), ar=document.getElementById('fc-ar');
   document.getElementById('flip').classList.remove('flipped');
-  he.textContent=w.he; ar.textContent=w.ar; markLong(he,w.he); markLong(ar,w.ar);
+  setHe(he,w.he); ar.textContent=w.ar; markLong(he,w.he); markLong(ar,w.ar);
   document.getElementById('flash-count').textContent=(fIdx+1)+" / "+fList.length;
   setTimeout(()=>speakHe(w.heSpeak), 250);
 }
@@ -361,7 +366,7 @@ let spIdx=0, spList=[], rec=null, listening=false;
 function startSpeak(){ spList=shuffle(deck().slice()); spIdx=0; show('s-speak'); renderSpeak(); }
 function renderSpeak(){
   const w=spList[spIdx], he=document.getElementById('sp-he');
-  he.textContent=w.he; markLong(he,w.he);
+  setHe(he,w.he); markLong(he,w.he);
   document.getElementById('sp-ar').textContent=w.ar;
   document.getElementById('speak-count').textContent=(spIdx+1)+" / "+spList.length;
   document.getElementById('sp-fb').className="feedback";
@@ -408,7 +413,7 @@ function startMatch(){
   const hes=shuffle(pool.slice()), ars=shuffle(pool.slice());
   const colHe=document.getElementById('col-he'), colAr=document.getElementById('col-ar');
   colHe.innerHTML=""; colAr.innerHTML="";
-  hes.forEach(w=>{ const b=document.createElement('button'); b.className="tile he"; b.textContent=w.he;
+  hes.forEach(w=>{ const b=document.createElement('button'); b.className="tile he"; setHe(b,w.he);
     b.dataset.key=w.heSpeak; b.onclick=()=>pickTile(b,'he'); colHe.appendChild(b); });
   ars.forEach(w=>{ const b=document.createElement('button'); b.className="tile ar"; b.textContent=w.ar;
     b.dataset.key=w.heSpeak; b.onclick=()=>pickTile(b,'ar'); colAr.appendChild(b); });
@@ -437,7 +442,7 @@ function startQuiz(){ qList=shuffle(deck().slice()); qIdx=0; show('s-quiz'); ren
 function renderQuiz(){
   curQuiz=qList[qIdx];
   const he=document.getElementById('q-he');
-  he.textContent=curQuiz.he; markLong(he,curQuiz.he);
+  setHe(he,curQuiz.he); markLong(he,curQuiz.he);
   document.getElementById('quiz-count').textContent=(qIdx+1)+" / "+qList.length;
   const pool=deck().filter(w=>w.ar!==curQuiz.ar);
   const opts=shuffle([curQuiz, ...shuffle(pool).slice(0,3)]);
@@ -463,7 +468,7 @@ function showList(){
     arr.forEach((w,i)=>{
       const tr=document.createElement('tr'); tr.onclick=()=>speakHe(w.heSpeak);
       if(numbered){ const n=document.createElement('td'); n.className="n"; n.textContent=i+1; tr.appendChild(n); }
-      const h=document.createElement('td'); h.className="he"; h.textContent=w.he; tr.appendChild(h);
+      const h=document.createElement('td'); h.className="he"; setHe(h,w.he); tr.appendChild(h);
       const a=document.createElement('td'); a.className="ar"; a.textContent=w.ar; tr.appendChild(a);
       body.appendChild(tr);
     });
