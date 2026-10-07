@@ -132,6 +132,9 @@
   /* shuruk: draw the dot separately so it never touches the vav */
   .shk{position:relative; display:inline-block; padding-inline-end:.3em;}
   .shk::after{content:""; position:absolute; inset-inline-end:.05em; top:.9em; width:.13em; height:.13em; border-radius:50%; background:currentColor;}
+  /* yod with dagesh: dot drawn separately above-left of the yod */
+  .ydg{position:relative; display:inline-block; padding-inline:.12em .2em;}
+  .ydg::before{content:""; position:absolute; left:.02em; top:.55em; width:.12em; height:.12em; border-radius:50%; background:currentColor;}
   /* word list */
   .list-h{display:inline-block; background:#fff176; padding:2px 14px; font-weight:700; font-size:1.1rem; line-height:1.7; margin:2px 0 8px; border-radius:6px;}
   .wl{width:100%; border-collapse:collapse; margin:0 0 18px;}
@@ -318,7 +321,10 @@ function speakAr(t){ say(t, "ar", "ar-SA"); }
 
 /* ============ HELPERS ============ */
 function plain(s){ return s.replace(/[֑-ׇً-ٰٟ]/g,''); }
-function hebHTML(t){ return t.replace(/\u05D5\u05BC/g,'<span class="shk">\u05D5</span>'); }
+function hebHTML(t){
+  return t.replace(/\u05D9([\u05B0\u05BC]+)/g,(m,k)=> k.indexOf('\u05BC')<0 ? m : '<span class="ydg">\u05D9'+k.replace('\u05BC','')+'</span>')
+          .replace(/\u05D5\u05BC/g,'<span class="shk">\u05D5</span>');
+}
 function setHe(el,t){ el.innerHTML=hebHTML(t); }
 function markLong(el, text){ el.classList.toggle('long', plain(text).length>9); }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
